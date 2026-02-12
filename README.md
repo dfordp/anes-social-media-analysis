@@ -1,5 +1,7 @@
 # Measuring Participation and Visibility in Social Media (ANES 2020–2024)
 
+Link to Paper: https://drive.google.com/file/d/10vgVEdyvrXEGHSyHmr9WOG7fjswMYZgU/view?usp=sharing
+
 ## Overview
 
 This project analyzes how the structure of social media participation has changed between 2020 and 2024 by distinguishing between **platform adoption**, **engagement intensity**, and **visible content production**.
