@@ -220,4 +220,3 @@ It does not represent an official ANES publication and does not involve original
 
 Related descriptive analyses using the same data exist; this project focuses specifically on **measurement and interpretation**, not novelty of data.
 
-just say the word.
