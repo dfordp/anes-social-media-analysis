@@ -1,6 +1,6 @@
 # Measuring Participation and Visibility in Social Media (ANES 2020–2024)
 
-Link to Paper: https://drive.google.com/file/d/10vgVEdyvrXEGHSyHmr9WOG7fjswMYZgU/view?usp=sharing
+Link to Paper: [https://drive.google.com/file/d/10vgVEdyvrXEGHSyHmr9WOG7fjswMYZgU/view?usp=sharing](https://drive.google.com/file/d/1uayeDXQC_7SDqXD5hGX4Utdc8hmBdrFJ/view?usp=sharing)
 
 ## Overview
 
