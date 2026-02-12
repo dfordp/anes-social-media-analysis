@@ -1,141 +1,221 @@
-# Participation and Visibility in Online Platforms (2020–2024)
+# Measuring Participation and Visibility in Social Media (ANES 2020–2024)
 
 ## Overview
 
-This project examines how conclusions about online platforms change when analysis moves beyond counting users to accounting for **engagement intensity and visibility**.
+This project analyzes how the structure of social media participation has changed between 2020 and 2024 by distinguishing between **platform adoption**, **engagement intensity**, and **visible content production**.
 
-Using publicly released data from the **American National Election Studies (ANES) 2020 and 2024 Time Series**, the analysis distinguishes between:
+Rather than treating social media platforms as flat populations of users, the analysis explicitly separates:
 
-* platform users,
-* frequent visitors, and
-* high-intensity contributors (posters).
+* who is *on* a platform,
+* who *uses it frequently*, and
+* who *produces most visible content*.
 
-The core finding is structural rather than topical: **visible content on social media platforms is produced by a much smaller and more active subset of users**, and trends inferred from visible activity can diverge substantially from trends at the population level.
+The project uses publicly available data from the **American National Election Studies (ANES) 2020 and 2024 Time Series**. Elections serve as a **measurement context**, not the substantive focus. The goal is to understand **participation inequality and engagement concentration** in large-scale online platforms.
 
-While elections provide the measurement context, the project’s focus is on **participation inequality, engagement concentration, and measurement**, not political outcomes.
-
----
-
-## Motivation
-
-Most analyses of social media rely on one of two data sources:
-
-1. platform-generated metrics or scraped content, which over-represent highly active users, or
-2. surveys that capture adoption but not intensity.
-
-This creates a common interpretive error: **treating visible content as representative of platform users or the broader population**.
-
-ANES offers a rare opportunity to address this problem. It combines:
-
-* nationally representative sampling,
-* repeated measurement across time,
-* platform-specific usage indicators, and
-* frequency measures for both use and posting.
-
-This makes it possible to study social media as a **layered participation system**, rather than a flat public square.
-
----
-
-## What This Project Does
-
-The analysis focuses on three related questions:
-
-1. How has overall participation in major social media platforms changed between 2020 and 2024?
-2. How does platform composition differ when measured at the level of users, visits, and posts?
-3. How does engagement concentration affect the interpretation of visible online activity?
-
-To answer these, the project constructs three engagement tiers:
-
-* **User-weighted estimates** (who is on a platform),
-* **Visit-weighted estimates** (who consumes content most frequently),
-* **Post-weighted estimates** (who produces most visible content).
-
-This approach highlights how conclusions can shift depending on the unit of analysis.
-
----
-
-## Data
-
-* **Source:** American National Election Studies (ANES)
-
-  * 2020 Time Series Study
-  * 2024 Time Series Study
-* **Population:** U.S. citizens aged 18+ residing in households
-* **Sampling:** Address-based probability samples, administered online and face-to-face
-* **Weights:** Post-election full-sample weights provided by ANES
-
-All data used in this project are **publicly available** and accessed in accordance with ANES documentation and usage guidelines.
-
-> Note: Findings describe U.S. citizens and are not intended to generalize to all adults or to non-U.S. contexts.
-
----
-
-## Methodology
-
-### Engagement Weighting
-
-Survey weights are combined with frequency-derived intensity scores to approximate differences between:
-
-* platform audiences,
-* engagement volume, and
-* visible content production.
-
-Frequency categories are mapped to relative intensity values to construct visit- and post-weighted estimates. These are intended to be **illustrative**, not to model platform algorithms or exposure mechanisms.
-
-### Analytical Scope
-
-* All analyses are **descriptive**
-* No causal claims are made
-* Results focus on compositional change and measurement implications
-
-Robustness checks include light winsorization of survey weights and effective sample size corrections for uncertainty estimation.
-
----
-
-## Key Takeaways
-
-* Overall platform participation has declined modestly, while usage has become more fragmented.
-* Activity has become increasingly concentrated among a smaller subset of highly engaged users.
-* The composition of visible content can differ sharply from the composition of platform users.
-* Engagement-aware metrics are essential for interpreting trends in online discourse.
-
-These patterns suggest that changes in what is seen online often reflect **who remains active**, rather than broad shifts in population behavior.
+All analyses are implemented in a **single Jupyter notebook**, emphasizing transparency and reproducibility over software abstraction.
 
 ---
 
 ## Why ANES?
 
-ANES serves as an enabling measurement infrastructure rather than a topical focus. Comparable analyses are difficult to replicate in many other countries due to the absence of datasets that combine:
+ANES provides an unusually strong measurement foundation for studying social media participation because it combines:
+
+* nationally representative probability sampling,
+* consistent questions across time,
+* platform-specific usage indicators,
+* frequency measures for both use and posting, and
+* validated post-election survey weights.
+
+This combination makes it possible to examine how **visible online activity diverges from platform audiences**, something that cannot be reliably inferred from scraped platform data alone.
+
+---
+
+## Analytical Framework
+
+The core methodological idea is that **visible content is not produced by the same population that adopts platforms**.
+
+To make this explicit, the analysis constructs three engagement tiers:
+
+1. **User-weighted estimates**
+   Who reports using a given platform.
+
+2. **Visit-weighted estimates**
+   Who consumes content most frequently.
+
+3. **Post-weighted estimates**
+   Who produces the majority of visible content.
+
+All estimates use ANES-provided survey weights and are purely descriptive.
+
+---
+
+## Data
+
+* **Source:** American National Election Studies
+
+  * 2020 Time Series
+  * 2024 Time Series
+* **Population:** U.S. citizens aged 18+ residing in households
+* **Mode:** Online and face-to-face interviews
+* **Weights:** Post-election full-sample weights (provided by ANES)
+
+All data used are publicly released and accessed in accordance with ANES documentation.
+
+---
+
+## Methodology
+
+### 1. Harmonization Across Waves
+
+Variables are harmonized across 2020 and 2024 to ensure comparability. This includes:
+
+* demographics (age, gender, race/ethnicity, education),
+* platform usage indicators,
+* frequency of use and posting.
+
+```python
+def harmonize_binary(series):
+    s = pd.to_numeric(series, errors="coerce")
+    return s.where(s.isin([0, 1]))
+```
+
+---
+
+### 2. Weighted Estimation
+
+All estimates apply ANES post-election weights. Weighted means and proportions are computed directly rather than relying on unweighted counts.
+
+```python
+def weighted_mean(x, w):
+    mask = np.isfinite(x) & np.isfinite(w) & (w > 0)
+    return np.sum(x[mask] * w[mask]) / np.sum(w[mask])
+```
+
+Uncertainty is adjusted using **Kish’s effective sample size** to account for unequal weighting.
+
+---
+
+### 3. Engagement Weighting
+
+To approximate differences between users, visitors, and posters, frequency categories are mapped to relative intensity scores.
+
+Example mapping:
+
+```python
+VISIT_FREQ_MAP = {
+    "Multiple times per day": 35,
+    "Once per day": 21,
+    "A few times per week": 7,
+    "Once per week": 3,
+    "Less than once a week": 1,
+    "Never": 0
+}
+
+POST_FREQ_MAP = {
+    "Multiple times per day": 20,
+    "Once per day": 10,
+    "A few times per week": 5,
+    "Once per week": 2,
+    "Never": 0
+}
+```
+
+Survey weights are multiplied by these intensity values to construct **visit-weighted** and **post-weighted** estimates.
+
+```python
+df["visit_weight"] = df["anes_weight"] * df["visit_intensity"]
+df["post_weight"] = df["anes_weight"] * df["post_intensity"]
+```
+
+These weights are **illustrative** and do not model algorithmic ranking or exposure.
+
+---
+
+### 4. Participation Inequality
+
+The analysis compares:
+
+* platform composition among all users,
+* composition among frequent visitors,
+* composition among frequent posters.
+
+This reveals how visible discourse can diverge sharply from the user base.
+
+```python
+def weighted_share(mask, weight):
+    mask = np.asarray(mask, bool)
+    w = np.asarray(weight, float)
+    ok = np.isfinite(w) & (w > 0)
+    return w[ok & mask].sum() / w[ok].sum()
+```
+
+---
+
+### 5. Affective Extremity and Activity
+
+The notebook also examines how posting frequency varies with **attitudinal extremity**, using feeling-thermometer differences as a continuous measure.
+
+Respondents are grouped into bins, and weighted mean posting rates are computed within each bin.
+
+```python
+bins = np.linspace(0, 100, 9)
+df["polarization_bin"] = pd.cut(df["affective_distance"], bins)
+```
+
+This shows that while overall posting declines, visible activity becomes increasingly concentrated among highly opinionated users.
+
+---
+
+## Key Findings (Structural)
+
+* Overall social media participation declined modestly between 2020 and 2024.
+* Platform use fragmented rather than consolidating.
+* Activity became more concentrated among a smaller group of highly engaged users.
+* The composition of visible content diverges sharply from the composition of platform audiences.
+
+These patterns suggest that changes in online discourse often reflect **who remains active**, not broad population shifts.
+
+---
+
+## Why This Cannot Be Directly Replicated in India
+
+This analysis depends on the existence of a dataset that combines:
 
 * national representativeness,
 * repeated waves,
-* platform-specific usage, and
-* activity-frequency measures.
+* platform-specific usage,
+* and activity-frequency measures.
 
-As a result, this project should be understood as a **methodological case study** enabled by unusually strong data, not a universal template.
+No equivalent dataset currently exists for India. Most Indian social media research relies on either:
+
+* platform data (which over-represents high-activity users), or
+* surveys that capture adoption but not intensity.
+
+On messaging-first platforms like WhatsApp, where much interaction is private, engagement cannot be measured at scale without institutional access.
 
 ---
 
 ## Limitations
 
-* Analysis is limited to platforms included in ANES questionnaires.
-* Activity weighting approximates relative intensity and does not capture algorithmic amplification.
-* Results are specific to the U.S. context and measurement environment.
+* All measures are self-reported.
+* Engagement weighting approximates intensity, not exposure.
+* Results are specific to the U.S. measurement context.
+* No causal claims are made.
 
 ---
 
-## Code and Reproducibility
+## Reproducibility
 
-This repository contains code used to reproduce all figures and summaries presented in the accompanying analysis using publicly released ANES data.
-
-The code is provided for transparency and reproducibility and does not include any proprietary data or tools.
+All analyses are contained in a single Jupyter notebook.
+Running the notebook end-to-end reproduces all figures and summary tables using publicly released ANES data.
 
 ---
 
-## Attribution and Scope
+## Attribution
 
-This project is an **independent analysis** of publicly available ANES data.
-It does not represent an official ANES publication, nor does it involve original data collection.
+This is an **independent analysis** of publicly available ANES data.
+It does not represent an official ANES publication and does not involve original data collection.
 
-Related descriptive analyses using the same data exist; this project focuses specifically on **measurement and interpretation** rather than novel data or causal inference.
+Related descriptive analyses using the same data exist; this project focuses specifically on **measurement and interpretation**, not novelty of data.
 
+just say the word.
